@@ -13,16 +13,18 @@ void main()
      */
     vec4 modelPosition = modelMatrix * vec4(position, 1.0);
                 
-    // Rotate
+    // // // // Rotate
     float angle = atan(modelPosition.x, modelPosition.z);
     float distanceToCenter = length(modelPosition.xz);
-    float angleOffset = (1.0 / distanceToCenter) * uTime;
-    angle += angleOffset;
-    modelPosition.x = cos(angle) * distanceToCenter;
-    modelPosition.z = sin(angle) * distanceToCenter;
+    // float angleOffset = (1.0 / distanceToCenter) * uTime;
+    angle += uTime;
+    // modelPosition.x = cos(angle) * distanceToCenter;
+    // modelPosition.z = sin(angle) * distanceToCenter;
 
-    // Randomness
-    modelPosition.xyz += aRandomness;
+    // // Randomness
+    // modelPosition.xyz += aRandomness;
+    modelPosition.x += sin(angle) * 0.005;
+    modelPosition.z += cos(angle) * 0.005;
 
     vec4 viewPosition = viewMatrix * modelPosition;
     vec4 projectedPosition = projectionMatrix * viewPosition;

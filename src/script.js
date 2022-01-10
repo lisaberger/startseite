@@ -2,14 +2,14 @@ import './style.css'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import * as dat from 'lil-gui'
-import galaxyVertexShader from './shaders/galaxy/vertex.glsl'
-import galaxyFragmentShader from './shaders/galaxy/fragment.glsl'
+import elementsVertexShader from './shaders/elements/vertex.glsl'
+import elementsFragmentShader from './shaders/elements/fragment.glsl'
 
 /**
  * Base
  */
 // Debug
-const gui = new dat.GUI()
+// const gui = new dat.GUI()
 
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
@@ -18,24 +18,24 @@ const canvas = document.querySelector('canvas.webgl')
 const scene = new THREE.Scene()
 
 /**
- * Galaxy
+ * Elements
  */
 const parameters = {}
-parameters.count = 115000
+parameters.count = 8000
 parameters.size = 0.005
-parameters.radius = 8.7
-parameters.branches = 5
-parameters.spin = 1
+parameters.radius = 40
+// parameters.branches = 5
+// parameters.spin = 1
 parameters.randomness = 0.2
 parameters.randomnessPower = 7
-parameters.insideColor = '#0000ff'
-parameters.outsideColor = '#1b3984'
+parameters.insideColor = '#4b1e73'
+parameters.outsideColor = '#906ec4'
 
 let geometry = null
 let material = null
 let points = null
 
-const generateGalaxy = () =>
+const generateElements = () =>
 {
     if(points !== null)
     {
@@ -64,19 +64,20 @@ const generateGalaxy = () =>
         // Position
         const radius = Math.random() * parameters.radius
 
-        const branchAngle = (i % parameters.branches) / parameters.branches * Math.PI * 2
+        // const branchAngle = (i % parameters.branches) / parameters.branches * Math.PI * 2
 
-        const randomX = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : - 1) * parameters.randomness * radius
-        const randomY = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : - 1) * parameters.randomness * radius
-        const randomZ = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : - 1) * parameters.randomness * radius
+        // const randomX = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : - 1) * parameters.randomness * radius
+        // const randomY = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : - 1) * parameters.randomness * radius
+        // const randomZ = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : - 1) * parameters.randomness * radius
 
-        positions[i3    ] = Math.cos(branchAngle) * radius
-        positions[i3 + 1] = 0
-        positions[i3 + 2] = Math.sin(branchAngle) * radius
-    
-        randomness[i3    ] = randomX
-        randomness[i3 + 1] = randomY
-        randomness[i3 + 2] = randomZ
+        // positions[i3    ] = Math.cos(branchAngle) * radius
+        // positions[i3 + 1] = 0
+        // positions[i3 + 2] = Math.sin(branchAngle) * radius
+
+        positions[i3    ] = Math.random() * radius * parameters.randomness
+        positions[i3 + 1] = Math.random() * radius * parameters.randomness
+        positions[i3 + 2] = Math.random() * radius * parameters.randomness
+
 
         // Color
         const mixedColor = insideColor.clone()
@@ -94,7 +95,7 @@ const generateGalaxy = () =>
     geometry.setAttribute('aRandomness', new THREE.BufferAttribute(randomness, 3))
     geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3))
     geometry.setAttribute('aScale', new THREE.BufferAttribute(scales, 1))
-
+    
     /**
      * Material
      */
@@ -107,9 +108,11 @@ const generateGalaxy = () =>
             uTime: { value: 0 },
             uSize: { value: 30 * renderer.getPixelRatio() }
         },    
-        vertexShader: galaxyVertexShader,
-        fragmentShader: galaxyFragmentShader
+        vertexShader: elementsVertexShader,
+        fragmentShader: elementsFragmentShader
     })
+
+
 
     /**
      * Points
@@ -118,13 +121,13 @@ const generateGalaxy = () =>
     scene.add(points)
 }
 
-gui.add(parameters, 'count').min(100).max(1000000).step(100).onFinishChange(generateGalaxy)
-gui.add(parameters, 'radius').min(0.01).max(20).step(0.01).onFinishChange(generateGalaxy)
-gui.add(parameters, 'branches').min(2).max(20).step(1).onFinishChange(generateGalaxy)
-gui.add(parameters, 'randomness').min(0).max(2).step(0.001).onFinishChange(generateGalaxy)
-gui.add(parameters, 'randomnessPower').min(1).max(10).step(0.001).onFinishChange(generateGalaxy)
-gui.addColor(parameters, 'insideColor').onFinishChange(generateGalaxy)
-gui.addColor(parameters, 'outsideColor').onFinishChange(generateGalaxy)
+// gui.add(parameters, 'count').min(100).max(1000000).step(100).onFinishChange(generateElements)
+// gui.add(parameters, 'radius').min(0.01).max(200).step(0.01).onFinishChange(generateElements)
+// // gui.add(parameters, 'branches').min(2).max(20).step(1).onFinishChange(generateElements)
+// gui.add(parameters, 'randomness').min(0).max(2).step(0.001).onFinishChange(generateElements)
+// gui.add(parameters, 'randomnessPower').min(1).max(10).step(0.001).onFinishChange(generateElements)
+// gui.addColor(parameters, 'insideColor').onFinishChange(generateElements)
+// gui.addColor(parameters, 'outsideColor').onFinishChange(generateElements)
 
 /**
  * Sizes
@@ -175,9 +178,9 @@ renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
 /**
- * Generate the first galaxy
+ * Generate the first Elements
  */
-generateGalaxy()
+generateElements()
 
 /**
  * Animate

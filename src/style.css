@@ -2,6 +2,8 @@
 {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
+    
 }
 
 html,
@@ -9,6 +11,8 @@ body
 {
     overflow: hidden;
     background: rgb(24,24, 24);
+    font-size: 100%;
+    box-sizing: border-box;
 }
 
 .webgl
@@ -22,15 +26,13 @@ body
 
 .section
 {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    align-items: center;
     height: 100vh;
-    position: relative;
     font-family: 'M PLUS Rounded 1c', sans-serif;
     color: #ffeded;
-    font-size: 4vmin;
     text-align: center;
     justify-content: center;
 }
@@ -42,7 +44,7 @@ section:nth-child(odd)
 
 img {
     margin: 2%;
-    width: 5%;
+    width: 4%;
     height: auto;
 }
 .section h1 {
@@ -50,23 +52,29 @@ img {
 }
 
 .section p {
-    font-size: 1.5vmin;
+    font-size: 0.9rem;
     width: 30%;
 }
 
-.title {
+.logo {
     width: 10%;
 }
 
-.section button {
-    margin: 1%;
-    width: 6%;
-    height: 6%;
+.go-btn {
+    width: 10rem;
+    padding: 1rem;
+    border: white solid 0.1rem;
+    /* border: none; */
+    border-radius: 3rem;
     background: none;
     color: white;
-    border-width: 3px;
-    border-radius: 20px;
-    font: 'M PLUS Rounded 1c', sans-serif;
+    font-size: 1.0rem;
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+    /* background-color: rgb(75, 0, 71); */
 }
 
 
+.go-btn:hover {
+    border-width: 0.15rem;
+    cursor:pointer;
+}
