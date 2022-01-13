@@ -1,1 +1,3 @@
 # startseite
+
+![Screenshot](detailpage.png)

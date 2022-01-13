@@ -4,6 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import * as dat from 'lil-gui'
 import elementsVertexShader from './shaders/elements/vertex.glsl'
 import elementsFragmentShader from './shaders/elements/fragment.glsl'
+import { TextureLoader } from 'three'
 
 /**
  * Base
@@ -18,116 +19,68 @@ const canvas = document.querySelector('canvas.webgl')
 const scene = new THREE.Scene()
 
 /**
+ * Textures
+ */
+const textureloader = new THREE.TextureLoader()
+const particleTexture = textureloader.load('1.png')
+
+
+/**
  * Elements
  */
-const parameters = {}
-parameters.count = 8000
-parameters.size = 0.005
-parameters.radius = 40
-// parameters.branches = 5
-// parameters.spin = 1
-parameters.randomness = 0.2
-parameters.randomnessPower = 7
-parameters.insideColor = '#4b1e73'
-parameters.outsideColor = '#906ec4'
+const vertices = []
+const materials = []
 
-let geometry = null
-let material = null
-let points = null
-
-const generateElements = () =>
-{
-    if(points !== null)
-    {
-        geometry.dispose()
-        material.dispose()
-        scene.remove(points)
-    }
-
-    /**
-     * Geometry
-     */
-    geometry = new THREE.BufferGeometry()
-
-    const positions = new Float32Array(parameters.count * 3)
-    const randomness = new Float32Array(parameters.count * 3)
-    const colors = new Float32Array(parameters.count * 3)
-    const scales = new Float32Array(parameters.count * 1)
-
-    const insideColor = new THREE.Color(parameters.insideColor)
-    const outsideColor = new THREE.Color(parameters.outsideColor)
-
-    for(let i = 0; i < parameters.count; i++)
-    {
-        const i3 = i * 3
-
-        // Position
-        const radius = Math.random() * parameters.radius
-
-        // const branchAngle = (i % parameters.branches) / parameters.branches * Math.PI * 2
-
-        // const randomX = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : - 1) * parameters.randomness * radius
-        // const randomY = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : - 1) * parameters.randomness * radius
-        // const randomZ = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : - 1) * parameters.randomness * radius
-
-        // positions[i3    ] = Math.cos(branchAngle) * radius
-        // positions[i3 + 1] = 0
-        // positions[i3 + 2] = Math.sin(branchAngle) * radius
-
-        positions[i3    ] = Math.random() * radius * parameters.randomness
-        positions[i3 + 1] = Math.random() * radius * parameters.randomness
-        positions[i3 + 2] = Math.random() * radius * parameters.randomness
+let parameters
+let mouseX = 0, mouseY = 0
 
 
-        // Color
-        const mixedColor = insideColor.clone()
-        mixedColor.lerp(outsideColor, radius / parameters.radius)
+ for ( let i = 0; i < 500; i ++ ) {
 
-        colors[i3    ] = mixedColor.r
-        colors[i3 + 1] = mixedColor.g
-        colors[i3 + 2] = mixedColor.b
+    const x = Math.random() * 2000 - 1000;
+    const y = Math.random() * 2000 - 1000;
+    const z = Math.random() * 2000 - 1000;
 
-        // Scale
-        scales[i] = Math.random()
-    }
+    vertices.push( x, y, z );
 
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
-    geometry.setAttribute('aRandomness', new THREE.BufferAttribute(randomness, 3))
-    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3))
-    geometry.setAttribute('aScale', new THREE.BufferAttribute(scales, 1))
-    
-    /**
-     * Material
-     */
-    material = new THREE.ShaderMaterial({
-        depthWrite: false,
-        blending: THREE.AdditiveBlending,
-        vertexColors: true,
-        uniforms:
-        {
-            uTime: { value: 0 },
-            uSize: { value: 30 * renderer.getPixelRatio() }
-        },    
-        vertexShader: elementsVertexShader,
-        fragmentShader: elementsFragmentShader
-    })
-
-
-
-    /**
-     * Points
-     */
-    points = new THREE.Points(geometry, material)
-    scene.add(points)
 }
 
-// gui.add(parameters, 'count').min(100).max(1000000).step(100).onFinishChange(generateElements)
-// gui.add(parameters, 'radius').min(0.01).max(200).step(0.01).onFinishChange(generateElements)
-// // gui.add(parameters, 'branches').min(2).max(20).step(1).onFinishChange(generateElements)
-// gui.add(parameters, 'randomness').min(0).max(2).step(0.001).onFinishChange(generateElements)
-// gui.add(parameters, 'randomnessPower').min(1).max(10).step(0.001).onFinishChange(generateElements)
-// gui.addColor(parameters, 'insideColor').onFinishChange(generateElements)
-// gui.addColor(parameters, 'outsideColor').onFinishChange(generateElements)
+const geometry = new THREE.BufferGeometry();
+geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+
+parameters = [
+    [[ 1.0, 0.2, 0.5 ], 7 ],
+    [[ 0.95, 0.1, 0.5 ], 4 ],
+    [[ 0.90, 0.05, 0.5 ], 6 ],
+    [[ 0.85, 0, 0.5 ], 5 ],
+    [[ 0.80, 0, 0.5 ], 3 ]
+];
+
+for ( let i = 0; i < parameters.length; i ++ ) {
+
+    const color = parameters[ i ][ 0 ];
+    const size = parameters[ i ][ 1 ];
+
+    materials[ i ] = new THREE.PointsMaterial({
+        size: size,
+        color: 0xB461D1,
+        map: particleTexture,
+        blending: THREE.AdditiveBlending, 
+        depthTest: false, 
+        transparent: true 
+    });
+
+    // materials[ i ].color.setHSL( color[ 0 ], color[ 1 ], color[ 2 ] );
+
+    const particles = new THREE.Points( geometry, materials[ i ] );
+
+    particles.rotation.x = Math.random() * 6;
+    particles.rotation.y = Math.random() * 6;
+    particles.rotation.z = Math.random() * 6;
+
+    scene.add( particles );
+}
+
 
 /**
  * Sizes
@@ -152,14 +105,26 @@ window.addEventListener('resize', () =>
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 })
 
+document.body.style.touchAction = 'none';
+document.body.addEventListener( 'pointermove', onPointerMove );
+
+function onPointerMove( event ) {
+
+    if ( event.isPrimary === false ) return;
+
+    mouseX = event.clientX - sizes.width/2;
+    mouseY = event.clientY - sizes.height/2;
+
+}
+
+
+
 /**
  * Camera
  */
 // Base camera
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-camera.position.x = 3
-camera.position.y = 3
-camera.position.z = 3
+const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 1, 2000)
+camera.position.z = 1000
 scene.add(camera)
 
 // Controls
@@ -177,31 +142,53 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
-/**
- * Generate the first Elements
- */
-generateElements()
+
 
 /**
  * Animate
  */
 const clock = new THREE.Clock()
 
-const tick = () =>
+const animate = () =>
 {
     const elapsedTime = clock.getElapsedTime()
 
     // Update material
-    material.uniforms.uTime.value = elapsedTime
 
     // Update controls
     controls.update()
+
+    camera.position.x += ( mouseX - camera.position.x ) * 0.0008;
+	camera.position.y += ( - mouseY - camera.position.y ) * 0.0008;
+
+	// camera.lookAt( scene.position );
+
+	for ( let i = 0; i < scene.children.length; i ++ ) {
+
+		const object = scene.children[ i ];
+
+		if ( object instanceof THREE.Points ) {
+
+			object.rotation.y = elapsedTime * ( i < 4 ? i + 1 : - ( i + 1 ) ) * 0.003;
+
+		}
+
+	}
+
+	for ( let i = 0; i < materials.length; i ++ ) {
+
+		const color = parameters[ i ][ 0 ];
+
+		const h = ( 360 * ( color[ 0 ] + elapsedTime ) % 360 ) / 360;
+					// materials[ i ].color.setHSL( h, color[ 1 ], color[ 2 ] );
+
+	}
 
     // Render
     renderer.render(scene, camera)
 
     // Call tick again on the next frame
-    window.requestAnimationFrame(tick)
+    window.requestAnimationFrame(animate)
 }
 
-tick()
+animate()
